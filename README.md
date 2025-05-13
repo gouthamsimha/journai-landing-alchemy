@@ -1,73 +1,105 @@
-# Welcome to your Lovable project
 
-## Project info
+# JournAI Landing Page
 
-**URL**: https://lovable.dev/projects/5646dc66-825e-4afb-bd7d-146b84d74585
+A state-of-the-art landing page for JournAI, a modern journaling app with AI capabilities. Built with React, TypeScript, Framer Motion, and Tailwind CSS.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- 📱 Fully responsive design
+- 🎨 Dynamic theme switching (light/dark mode)
+- ✨ Smooth animations with Framer Motion
+- 🧩 Component-based architecture
+- 📈 Interactive visualizations
+- 🛠️ Optimized for performance
+- 🔍 SEO-friendly
 
-**Use Lovable**
+## Quick Start
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5646dc66-825e-4afb-bd7d-146b84d74585) and start prompting.
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd journai-landing-page
+   ```
 
-Changes made via Lovable will be committed automatically to this repo.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-**Use your preferred IDE**
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+4. Open your browser and navigate to:
+   ```
+   http://localhost:8080
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Deployment
 
-Follow these steps:
+### Deploying to Vercel (One-Click)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Fork this repository to your GitHub account
+2. Create a new project on [Vercel](https://vercel.com)
+3. Import the forked repository
+4. Vercel will automatically detect the configuration and deploy your site
+5. Your landing page will be live at `https://your-project-name.vercel.app`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Customizing Content
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Text & Copy**: Edit the content in each component file under `src/components/`
+2. **Colors & Branding**: Modify theme colors in `src/index.css` and `tailwind.config.ts`
+3. **Images & Media**: Replace placeholder images in code with your own assets
+4. **Animation Settings**: Adjust animation parameters in `src/hooks/use-animation.ts`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Project Structure
+
+- `/src/components/` - Contains all UI components
+- `/src/hooks/` - Custom React hooks for animations and theme
+- `/src/pages/` - Page components
+- `/public/` - Static assets
+
+## Customization Tips
+
+### Updating Brand Colors
+
+Edit the CSS variables in `src/index.css` to match your brand colors:
+
+```css
+:root {
+  --bg-primary: 42 45% 91%;  /* Your light mode background */
+  --fg-primary: 0 0% 7%;     /* Your light mode text */
+  --accent: 255 48% 57%;     /* Your accent color */
+  /* ... other variables ... */
+}
+
+.dark {
+  --bg-primary: 0 0% 11%;    /* Your dark mode background */
+  --fg-primary: 0 0% 96%;    /* Your dark mode text */
+  /* ... other variables ... */
+}
 ```
 
-**Edit a file directly in GitHub**
+### Replacing Images and Media
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Add your images to the `/public/` directory
+2. Replace image references in components with your own assets
 
-**Use GitHub Codespaces**
+### Adding New Sections
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Create a new component in `/src/components/`
+2. Import and add it to the main `Index.tsx` file
+3. Style it using Tailwind CSS classes
 
-## What technologies are used for this project?
+## Performance Optimization
 
-This project is built with:
+This landing page is optimized for performance:
+- Code splitting
+- Lazy loading of images
+- Minimal third-party dependencies
+- Optimized animations with reduced motion support
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/5646dc66-825e-4afb-bd7d-146b84d74585) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT

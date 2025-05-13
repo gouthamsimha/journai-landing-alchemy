@@ -1,12 +1,36 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import HeroSection from '../components/HeroSection';
+import ProductShowcase from '../components/ProductShowcase';
+import FeatureGrid from '../components/FeatureGrid';
+import MoodTrendDemo from '../components/MoodTrendDemo';
+import TestimonialsCarousel from '../components/TestimonialsCarousel';
+import PricingCTA from '../components/PricingCTA';
+import FAQAccordion from '../components/FAQAccordion';
+import Footer from '../components/Footer';
 
 const Index = () => {
+  // Check system preference for dark mode on initial load
+  useEffect(() => {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <ProductShowcase />
+        <FeatureGrid />
+        <MoodTrendDemo />
+        <TestimonialsCarousel />
+        <PricingCTA />
+        <FAQAccordion />
+      </main>
+      <Footer />
     </div>
   );
 };
