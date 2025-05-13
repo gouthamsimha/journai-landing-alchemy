@@ -1,9 +1,10 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { useAnimationConfig } from '../hooks/use-animation';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Sample testimonial data
+// Refined testimonial data
 const testimonials = [
   {
     name: "Alex Carter",
@@ -32,33 +33,84 @@ const testimonials = [
 ];
 
 const TestimonialsCarousel = () => {
-  const { transition } = useAnimationConfig();
+  const { transition, shouldReduceMotion } = useAnimationConfig();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
   const intervalRef = useRef<number | null>(null);
+  const controls = useAnimation();
   
   // Auto-slide every 6 seconds
   useEffect(() => {
-    intervalRef.current = window.setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
+    startAutoSlide();
     
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [currentIndex]);
   
-  // Pause auto-slide on hover
+  const startAutoSlide = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(() => {
+      nextSlide();
+    }, 6000);
+  };
+  
+  // Navigation functions
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  };
+  
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+  
+  // Pause auto-slide on hover/interaction
   const pauseSlider = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
   
   // Resume auto-slide
   const resumeSlider = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = window.setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
+    startAutoSlide();
   };
+  
+  // Handle drag interactions
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    pauseSlider();
+    setIsDragging(true);
+    setDragStartX('touches' in e ? e.touches[0].clientX : e.clientX);
+  };
+  
+  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const difference = currentX - dragStartX;
+    setDragOffset(difference);
+  };
+  
+  const handleDragEnd = () => {
+    if (!isDragging) return;
+    
+    setIsDragging(false);
+    
+    // If dragged far enough, change slide
+    if (Math.abs(dragOffset) > 100) {
+      if (dragOffset > 0) {
+        prevSlide();
+      } else {
+        nextSlide();
+      }
+    }
+    
+    setDragOffset(0);
+    resumeSlider();
+  };
+
+  // Calculate progress
+  const progress = (currentIndex / (testimonials.length - 1)) * 100;
 
   return (
     <section id="testimonials" className="py-20 md:py-32">
@@ -78,85 +130,131 @@ const TestimonialsCarousel = () => {
           </p>
         </motion.div>
         
-        <div 
-          className="max-w-4xl mx-auto relative"
-          onMouseEnter={pauseSlider}
-          onMouseLeave={resumeSlider}
-          onTouchStart={pauseSlider}
-          onTouchEnd={resumeSlider}
-        >
-          {/* Desktop carousel */}
-          <div className="hidden md:block relative h-80">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                className="absolute top-0 left-0 w-full h-full"
-                initial={{ opacity: 0, x: 100, scale: 0.8 }}
-                animate={{
-                  opacity: index === currentIndex ? 1 : 0.5,
-                  x: index === currentIndex ? 0 : index < currentIndex ? -100 : 100,
-                  scale: index === currentIndex ? 1 : 0.8,
-                  zIndex: index === currentIndex ? 10 : 5,
-                }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="h-full flex flex-col p-8 rounded-xl glass">
-                  <div className="flex-1">
-                    <p className="text-lg mb-6 italic">"{testimonial.content}"</p>
-                  </div>
-                  <div className="flex items-center">
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name} 
-                      className="w-12 h-12 rounded-full mr-4 object-cover"
-                    />
-                    <div>
-                      <h4 className="font-medium">{testimonial.name}</h4>
-                      <p className="text-sm text-fg/60">{testimonial.title}</p>
+        <div className="max-w-4xl mx-auto relative">
+          {/* Progress bar */}
+          <div className="w-full h-1 bg-fg/10 rounded-full mb-8 overflow-hidden">
+            <motion.div 
+              className="h-full bg-accent"
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          </div>
+          
+          {/* Navigation buttons */}
+          <div className="absolute -top-12 right-0 flex space-x-2 z-20">
+            <motion.button
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-fg/20 text-fg/70 hover:border-accent hover:text-accent transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                pauseSlider();
+                prevSlide();
+                resumeSlider();
+              }}
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <motion.button
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-fg/20 text-fg/70 hover:border-accent hover:text-accent transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                pauseSlider();
+                nextSlide();
+                resumeSlider();
+              }}
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </motion.button>
+          </div>
+          
+          <div 
+            className="relative overflow-hidden"
+            onMouseEnter={pauseSlider}
+            onMouseLeave={resumeSlider}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            style={{ touchAction: 'pan-y' }}
+          >
+            {/* Enhanced carousel */}
+            <div className="relative h-auto md:h-80">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  className="w-full"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ 
+                    opacity: 1, 
+                    x: isDragging ? dragOffset : 0,
+                    scale: 1,
+                  }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="p-8 rounded-xl glass relative">
+                    <div className="absolute -left-2 -top-2 w-6 h-6 rounded-full bg-accent"></div>
+                    <div className="absolute -right-2 -bottom-2 w-4 h-4 rounded-full bg-accent/60"></div>
+                    
+                    <div className="mb-6">
+                      <p className="text-lg md:text-xl italic">"{testimonials[currentIndex].content}"</p>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <motion.div
+                        className="relative w-12 h-12 overflow-hidden rounded-full mr-4 border-2 border-accent/20"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        <img 
+                          src={testimonials[currentIndex].avatar} 
+                          alt={testimonials[currentIndex].name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
+                      <div>
+                        <h4 className="font-medium">{testimonials[currentIndex].name}</h4>
+                        <p className="text-sm text-fg/60">{testimonials[currentIndex].title}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          {/* Mobile carousel */}
-          <div className="md:hidden">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="p-6 rounded-xl glass"
-            >
-              <p className="text-lg mb-6 italic">"{testimonials[currentIndex].content}"</p>
-              <div className="flex items-center">
-                <img 
-                  src={testimonials[currentIndex].avatar} 
-                  alt={testimonials[currentIndex].name} 
-                  className="w-12 h-12 rounded-full mr-4 object-cover"
-                />
-                <div>
-                  <h4 className="font-medium">{testimonials[currentIndex].name}</h4>
-                  <p className="text-sm text-fg/60">{testimonials[currentIndex].title}</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-          
-          {/* Carousel indicators */}
-          <div className="flex justify-center mt-6 space-x-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-accent' : 'bg-fg/20'
-                }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            {/* Enhanced carousel indicators */}
+            <div className="flex justify-center mt-6 space-x-3">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    pauseSlider();
+                    setCurrentIndex(index);
+                    resumeSlider();
+                  }}
+                  className="group flex items-center"
+                  aria-label={`Go to testimonial ${index + 1}`}
+                >
+                  <motion.div
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentIndex 
+                        ? 'bg-accent scale-100' 
+                        : 'bg-fg/20 scale-75 group-hover:bg-accent/50'
+                    }`}
+                    initial={false}
+                    animate={{ 
+                      scale: index === currentIndex ? 1 : 0.75,
+                      opacity: index === currentIndex ? 1 : 0.5
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
