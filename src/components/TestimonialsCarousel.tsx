@@ -80,14 +80,15 @@ const TestimonialsCarousel = () => {
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     pauseSlider();
     setIsDragging(true);
-    setDragStartX('touches' in e ? e.touches[0].clientX : e.clientX);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setDragStartX(clientX);
   };
   
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
     
-    const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const difference = currentX - dragStartX;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const difference = clientX - dragStartX;
     setDragOffset(difference);
   };
   
@@ -113,7 +114,7 @@ const TestimonialsCarousel = () => {
   const progress = (currentIndex / (testimonials.length - 1)) * 100;
 
   return (
-    <section id="testimonials" className="py-20 md:py-32">
+    <section id="testimonials" className="py-20 md:py-32 relative overflow-hidden">
       <div className="container mx-auto px-6">
         <motion.div 
           className="text-center mb-16"
